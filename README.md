@@ -1,92 +1,124 @@
 # Copilot Agents Model
 
-Este repositório contém um conjunto leve de agentes reutilizáveis e fáceis de integrar em outros projetos.
+Coleção leve de agentes reutilizáveis para apoiar tarefas de desenvolvimento.
 
-## Estrutura
+## O que tem aqui
 
-- `src/indexAgents.js` - exporta os agentes disponíveis.
-- `src/agentFactory.js` - helper para criar agentes com interface consistente e regras.
-- `src/rules.js` - regras de comportamento para cada agente.
-- `src/agents/agentCode.js` - agente para implementação técnica de código.
-- `src/agents/assistantAsk.js` - agente para dúvidas, explicações e diagnósticos.
-- `src/agents/planner.js` - agente para planejamento de implementação.
-- `src/agents/teacherStudy.js` - agente para ensino e compreensão de conceitos.
+- `src/indexAgents.js` — exporta os agentes principais
+- `src/agentFactory.js` — helper para criar novos agentes com interface consistente
+- `src/rules.js` — regras de comportamento para cada agente
+- `src/agents/agentCode.js` — implementações de código e mudanças técnicas
+- `src/agents/assistantAsk.js` — respostas e diagnósticos em modo leitura
+- `src/agents/planner.js` — planos de implementação revisáveis
+- `src/agents/teacherStudy.js` — explicações didáticas e conceitos
+- `test/` — testes automáticos com `node --test`
+- `examples/` — exemplos práticos de uso
 
-## Agentes
+## Como usar
 
-- `agentCode`: transforma requisitos em mudanças de código completas, com qualidade de engenharia.
-- `assistantAsk`: responde dúvidas e explica código sem executar mudanças.
-- `planner`: produz planos de implementação revisáveis com passos, riscos e validações.
-- `teacherStudy`: explica conceitos, intuição e trade-offs como um tutor.
-
-# Copilot Agents Model
-
-Coleção de agentes reutilizáveis e opinionados para apoiar tarefas de desenvolvimento.
-
-Principais agentes incluídos
-- `agentCode` — transforma requisitos em mudanças de código completas (patchs/diffs, testes, instruções).
-- `assistantAsk` — responde dúvidas, explica trechos de código e diagnostica, sem aplicar mudanças automaticamente.
-- `planner` — produz planos de implementação revisáveis (escopo, passos, riscos, validações).
-- `teacherStudy` — explica conceitos técnicos com progressão didática, analogias e exemplos.
-
-Estrutura do repositório
-- `src/` — código-fonte dos agentes e helpers.
-- `test/` — testes automatizados (use `node --test`).
-- `examples/` — exemplos executáveis (bloqueio do event loop e `worker_threads`).
-
-Instalação e uso local
-1. Clone o repositório e instale dependências (se houver):
-
-```bash
-git clone <repo> && cd copilot-agents-model
-# não há dependências externas por padrão — apenas Node.js
-```
-
-2. Importar e usar os agentes em outro projeto (ESM):
+### 1) Importar os agentes
 
 ```js
 import { sampleAgents } from './src/indexAgents.js';
-const { agentCode } = sampleAgents;
 
+const { agentCode, assistantAsk, planner, teacherStudy } = sampleAgents;
+```
+
+### 2) Executar um agente
+
+```js
 const result = await agentCode.run({
   prompt: 'Adicionar validação em agentFactory',
-  context: { stack: { runtime: 'Node.js 18', moduleSystem: 'ESM' } },
+  context: {
+    stack: {
+      runtime: 'Node.js 18',
+      moduleSystem: 'ESM',
+    },
+  },
 });
+
 console.log(result);
 ```
 
-Logger opcional
-`createAgent` aceita um parâmetro `logger` (padrão `console`). Exemplo:
+### 3) Agentes principais
+
+- `agentCode` — converte requisitos em código, testes e instruções de execução
+- `assistantAsk` — responde dúvidas sem editar nada
+- `planner` — cria planos com escopo, passos, riscos e validações
+- `teacherStudy` — explica conceitos com analogias e exemplos
+
+## Primeiros passos
+
+1) Copie o `sampleAgents` para o seu código:
+
+```js
+import { sampleAgents } from './src/indexAgents.js';
+const { agentCode, assistantAsk, planner, teacherStudy } = sampleAgents;
+```
+
+2) Execute cada agente com um prompt simples:
+
+```js
+const codeResult = await agentCode.run({ prompt: 'Melhorar validação de entrada' });
+const askResult = await assistantAsk.run({ prompt: 'O que este código faz?' });
+const planResult = await planner.run({ prompt: 'Planejar um recurso de login' });
+const studyResult = await teacherStudy.run({ prompt: 'Explique event loop do Node.js' });
+```
+
+3) Verifique rapidamente o tipo de resposta:
+
+- `agentCode` normalmente retorna um texto com mudanças de código e instruções.
+- `assistantAsk` retorna explicações em formato de resposta de ajuda.
+- `planner` retorna uma estrutura com passos, riscos e validações.
+- `teacherStudy` retorna explicações claras e exemplos didáticos.
+
+4) Personalize `context.stack` se precisar de comportamento específico:
+
+```js
+await agentCode.run({
+  prompt: 'Adicionar validação em agentFactory',
+  context: { stack: { runtime: 'Node.js 20', moduleSystem: 'ESM' } },
+});
+```
+
+### 4) Criar seu próprio agente
 
 ```js
 import { createAgent } from './src/agentFactory.js';
 
-const customLogger = { log: (...args) => /* escrever em arquivo */ null, debug: () => null };
-const a = createAgent({ name: 'x', description: 'y', run: async () => {}, logger: customLogger });
+const myAgent = createAgent({
+  name: 'myAgent',
+  description: 'Agente de exemplo',
+  run: async ({ prompt, context }) => {
+    return `Recebi: ${prompt}`;
+  },
+});
+
+const output = await myAgent.run({ prompt: 'Teste rápido' });
+console.log(output);
 ```
 
-Rodando testes e exemplos
-- Testes: `node --test` (executa os testes em `test/`).
-- Exemplos: `node examples/blocking.js` e `node examples/worker-solution.js`.
+## Rodar testes e exemplos
 
-Publicar no GitHub (passos rápidos)
+- Testes: `node --test`
+- Exemplo de bloqueio do event loop: `node examples/blocking.js`
+- Exemplo com `worker_threads`: `node examples/worker-solution.js`
+- Exemplo rápido de primeiros passos: `node examples/quick-start.js`
+
+## Publicar no GitHub
 
 ```bash
-# 1. Inicialize repositório remoto e adicione origem
-git init
 git add .
-git commit -m "Initial agents scaffold"
-git branch -M main
-git remote add origin git@github.com:<seu-usuario>/<repo>.git
+git commit -m "Initial agents scaffold with README and CI"
 git push -u origin main
 ```
 
-Notas e suposições
-- Por padrão os agentes assumem uma stack moderna (Node.js 18+ e ESM) quando a informação de stack não for fornecida — a suposição é declarada nas respostas do agente. Ajuste `context.stack` nas chamadas para alterar o comportamento.
-- Os agentes foram projetados para serem fáceis de importar em outros projetos; o `createAgent` valida inputs e aceita `logger` opcional.
+## Notas rápidas
 
-Contribuição
-- Sinta-se à vontade para abrir PRs com melhorias, adicionar agentes ou adaptar o estilo de resposta.
+- Use `context.stack` nas chamadas para alterar suposições de stack.
+- O `createAgent` aceita `logger` opcional, útil para debug.
+- O projeto já inclui workflow de CI em `.github/workflows/ci.yml`.
 
-Licença
-- MIT
+## Licença
+
+MIT
