@@ -1,0 +1,13 @@
+{
+  "name": "copilot-agents-model",
+  "version": "0.1.0",
+  "description": "Reusable agent templates and helpers for easy integration in other projects.",
+  "main": "src/indexAgents.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "start": "node src/index.js"
+  },
+  "keywords": ["agent", "copilot", "reusable", "automation"],
+  "license": "MIT"
+}
